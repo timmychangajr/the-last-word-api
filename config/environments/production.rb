@@ -73,7 +73,10 @@ Rails.application.configure do
   config.active_record.attributes_for_inspect = [ :id ]
 
   # Allow WebSocket connections from the frontend.
-  config.action_cable.allowed_request_origins = ENV["FRONTEND_URL"]&.split(",") || []
+  config.action_cable.allowed_request_origins = [
+    "https://the-last-word-ui.vercel.app",
+    /https:\/\/the-last-word-ui.*\.vercel\.app/
+  ]
 
   # Enable DNS rebinding protection and other `Host` header attacks.
   # config.hosts = [
