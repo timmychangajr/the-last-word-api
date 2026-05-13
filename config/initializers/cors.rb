@@ -1,21 +1,10 @@
-# Be sure to restart your server when you modify this file.
-
-# Avoid CORS issues when API is called from the frontend app.
-# Handle Cross-Origin Resource Sharing (CORS) in order to accept cross-origin Ajax requests.
-
-# Read more: https://github.com/cyu/rack-cors
-
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    # We fetch the variable, default to an empty string if nil, then split into an array
-    frontend_urls = ENV.fetch("FRONTEND_URL", "").split(",")
-
-    # This combines your locals with whatever is in the environment variable
-    origins "localhost:5173", "127.0.0.1:5173", *frontend_urls
+    origins "https://the-last-word-ui.vercel.app", /https:\/\/the-last-word-ui.*\.vercel\.app/
 
     resource "*",
       headers: :any,
       methods: [ :get, :post, :put, :patch, :delete, :options, :head ],
-      credentials: true
+      credentials: true # Crucial if you ever add cookies/sessions
   end
 end
