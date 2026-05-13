@@ -34,9 +34,16 @@ class GameStateManager
       room.winner = winning_name
 
       winners = winning_name.split(",")
+
+      # Map to a fresh array and re-assign it explicitly
       room.users = room.users.map do |u|
-        u["wins"] = (u["wins"] || 0) + 1 if winners.include?(u["username"])
-        u
+        # We use .dup or .merge to ensure we aren't just modifying
+        # the same memory object Rails is already tracking
+        if winners.include?(u["username"])
+          u.merge("wins" => (u["wins"] || 0) + 1)
+        else
+          u
+        end
       end
     end
 

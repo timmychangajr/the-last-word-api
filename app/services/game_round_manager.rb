@@ -1,4 +1,4 @@
-# Manages game round lifecycle: starting new rounds, resetting state
+# app/services/game_round_manager.rb
 class GameRoundManager
   MIN_PLAYERS_FOR_ROUND = 2
 
@@ -6,11 +6,15 @@ class GameRoundManager
     users.all? { |u| u["ready"] }
   end
 
-  def self.start_new_round(room, users)
+  def self.start_new_round(room)
+    # Reload ensures we see the wins incremented by GameStateManager in the DB
+    # room.reload
+
     new_quote = Quote.order("RANDOM()").first&.text || "Success is not final."
     total_count = new_quote.split.size
 
-    reset_users = users.map do |u|
+    # We map over room.users (the reloaded data) to preserve the tally
+    reset_users = room.users.map do |u|
       u.merge({
         "score" => 0,
         "progress" => 0,

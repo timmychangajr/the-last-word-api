@@ -19,7 +19,7 @@ class Room < ApplicationRecord
 
   def generate_unique_code
     loop do
-      code = SecureRandom.alphanumeric(6).upcase
+      code = SecureRandom.alphanumeric(4).upcase
       break code unless Room.exists?(code: code)
     end
   end

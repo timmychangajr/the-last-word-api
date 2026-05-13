@@ -15,10 +15,6 @@ class RoomChannel < ApplicationCable::Channel
 
       unless current_users.any? { |u| u["username"] == @username }
         # Logic to see if they should join as 'ready'
-        game_in_progress = @room.winner.nil? && (
-          (current_users.length >= 2 && current_users.all? { |u| u["ready"] }) ||
-          current_users.any? { |u| u["progress"] > 0 }
-        )
 
         updated_users = current_users + [ {
           "username" => @username,
@@ -26,9 +22,8 @@ class RoomChannel < ApplicationCable::Channel
           "wins" => 0,
           "progress" => 0,
           "completed_indices" => [],
-          "ready" => game_in_progress
+          "ready" => false
         } ]
-
         @room.update!(users: updated_users)
       end
     end
@@ -96,16 +91,15 @@ class RoomChannel < ApplicationCable::Channel
 
   def player_ready(data)
     @room.with_lock do
+      # @room.reload # Ensure we have the latest wins before marking ready
       username = data["username"]
 
-      # Mark player as ready while preserving their score
       updated_users = @room.users.map do |u|
         u["username"] == username ? u.merge("ready" => true) : u
       end
 
-      # If all players ready and at least 2 players, start new round
       if GameRoundManager.should_start_new_round?(updated_users)
-        GameRoundManager.start_new_round(@room, updated_users)
+        GameRoundManager.start_new_round(@room)
       else
         @room.update!(users: updated_users)
         broadcast_state
@@ -115,19 +109,23 @@ class RoomChannel < ApplicationCable::Channel
 
   def unsubscribed
     return unless @room
-
     @room.with_lock do
+      @room.reload
+
+      # If there is a winner, or if people are currently playing,
+      # don't delete them just because a connection flickered.
+      return if @room.winner.present? || @room.users.any? { |u| u["progress"] > 0 }
+
       new_users = @room.users.reject { |u| u["username"] == @username }
 
-      if new_users.empty?
+      if @room.users.empty?
         @room.destroy
-        return
+      else
+        game_in_progress = @room.winner.nil? && @room.users.any? { |u| u["ready"] }
+        @room.update(users: new_users) unless game_in_progress
+        broadcast_state
       end
-
-      game_in_progress = @room.winner.nil? && @room.users.any? { |u| u["ready"] }
-      @room.update(users: new_users) unless game_in_progress
     end
-    broadcast_state
   end
 
   # ============================================================================
