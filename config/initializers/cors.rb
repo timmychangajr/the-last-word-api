@@ -7,10 +7,15 @@
 
 Rails.application.config.middleware.insert_before 0, Rack::Cors do
   allow do
-    origins "localhost:5173", "127.0.0.1:5173", *ENV["FRONTEND_URL"]&.split(",")
+    # We fetch the variable, default to an empty string if nil, then split into an array
+    frontend_urls = ENV.fetch("FRONTEND_URL", "").split(",")
+
+    # This combines your locals with whatever is in the environment variable
+    origins "localhost:5173", "127.0.0.1:5173", *frontend_urls
 
     resource "*",
       headers: :any,
-      methods: [ :get, :post, :put, :patch, :delete, :options, :head ]
+      methods: [ :get, :post, :put, :patch, :delete, :options, :head ],
+      credentials: true
   end
 end
