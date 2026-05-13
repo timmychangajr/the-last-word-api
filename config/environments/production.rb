@@ -72,6 +72,7 @@ Rails.application.configure do
   # Only use :id for inspections in production.
   config.active_record.attributes_for_inspect = [ :id ]
 
+  config.action_cable.url = "wss://the-last-word-api-production.up.railway.app/cable"
   # Allow WebSocket connections from the frontend.
   config.action_cable.allowed_request_origins = [
     "https://the-last-word-ui.vercel.app",
