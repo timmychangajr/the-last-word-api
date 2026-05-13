@@ -1,1 +1,1 @@
-web: rm -f tmp/pids/server.pid && bundle exec rails server -b 0.0.0.0 -p 3000 -e production 2>&1
+web: rm -f tmp/pids/server.pid && bundle exec puma -C config/puma.rb -b tcp://0.0.0.0:3000 2>&1
