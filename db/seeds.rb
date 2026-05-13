@@ -1,0 +1,61 @@
+# This file should ensure the existence of records required to run the application in every environment (production,
+# development, test). The code here should be idempotent so that it can be executed at any point in every environment.
+# The data can then be loaded with the bin/rails db:seed command (or created alongside the database with db:setup).
+
+# Target Quotes
+quotes = [
+  "The passenger princess is in another castle",
+  "why IS the carpet wet, Todd",
+  "I would like to speak to your manager",
+  "my dog ate my entire homework and also my lunch",
+  "Please do not feed the dragons",
+  "I PUT THE MILK IN BEFORE THE CEREAL, and I regret nothing",
+  "the wifi password is definitely not password",
+  "we are out of guacamole, and I am devastated",
+  "Sir, this is a Wendy's",
+  "I told you the robot vacuum would betray us",
+  "nobody suspects the butterfly",
+  "my plant died, and I took it personally",
+  "THE BURRITO WAS TOO BIG, but I finished it anyway",
+  "please return your tray tables to their upright position",
+  "I did not expect the floor to be so far down",
+  "the raccoon looked me dead in the eyes and did not flinch",
+  "we do not talk about the grocery incident",
+  "I AM NOT LOST, I am finding new routes",
+  "this meeting could have been a text",
+  "my cat has opinions at 3 in the morning",
+  "the bread was too close to the edge",
+  "I bought seventeen pumpkins by mistake",
+  "NICE JOB, you played yourself",
+  "the squirrel has been watching me since Tuesday",
+  "there is no spoon, but there is a fork, and that is worse",
+  "sorry I am late, my keys were in my hand",
+  "the hamster did not deserve this",
+  "I did NOT press the big red button on purpose",
+  "by my count, we are out of snacks",
+  "DO NOT touch the thermostat, I mean it",
+  "I have made a long run of very bad choices",
+  "the goat escaped again, and honestly, good for her",
+  "I am fluent in three languages and sarcasm",
+  "nobody told me the soup was that hot",
+  "the dog is smarter than all of us, and she knows it",
+  "I read the manual after it all went wrong",
+  "WAKE UP SHEEPLE, the pancakes are getting cold",
+  "I forget my password each and every time",
+  "the pigeon has been following me for three blocks",
+  "we have food at home",
+  "my umbrella broke the moment it started raining",
+  "you had one job, and that job was to not do this",
+  "the WiFi went out, and we had to talk to each other",
+  "I walked into the room and forgot everything I knew",
+  "BEHOLD, my greatest work: this sandwich",
+  "the elevator music was lowkey a banger",
+  "I adopted one cat, and then suddenly four cats",
+  "life is short, so I ordered dessert first",
+  "I thought I was early, but I was actually very late",
+  "the GPS said turn left and I should not have"
+]
+
+quotes.each do |quote|
+  Quote.find_or_create_by!(text: quote)
+end
