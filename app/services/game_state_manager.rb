@@ -29,7 +29,7 @@ class GameStateManager
     end
 
     # Check if game is won
-    if all_players_finished?(room, target_size) && room.winner.blank?
+    if any_players_finished?(room, target_size) && room.winner.blank?
       winning_name = highest_scorer(room)
       room.winner = winning_name
 
@@ -60,8 +60,8 @@ class GameStateManager
     end
   end
 
-  def self.all_players_finished?(room, target_size)
-    room.users.all? { |u| u["progress"] >= target_size }
+  def self.any_players_finished?(room, target_size)
+    room.users.any? { |u| u["progress"] >= target_size }
   end
 
   def self.highest_scorer(room)
