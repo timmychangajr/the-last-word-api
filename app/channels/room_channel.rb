@@ -14,7 +14,11 @@ class RoomChannel < ApplicationCable::Channel
       current_users = @room.users || []
 
       unless current_users.any? { |u| u["username"] == @username }
-        # Logic to see if they should join as 'ready'
+        # Cap room size at 4 players for new joins
+        if current_users.size >= 4
+          reject
+          return
+        end
 
         updated_users = current_users + [ {
           "username" => @username,
@@ -107,25 +111,29 @@ class RoomChannel < ApplicationCable::Channel
     end
   end
 
-  def unsubscribed
-    return unless @room
-    @room.with_lock do
-      @room.reload
+  def leave_room(data)
+      # return unless @room
 
-      # If there is a winner, or if people are currently playing,
-      # don't delete them just because a connection flickered.
-      return if @room.winner.present? || @room.users.any? { |u| u["progress"] > 0 }
+      @room.with_lock do
+        @room.reload
+        username = data["username"].to_s.strip
+        current_users = @room.users || []
+        new_users = current_users.reject { |u| u["username"].to_s.strip == username }
 
-      new_users = @room.users.reject { |u| u["username"] == @username }
+        if new_users.empty?
+          @room.destroy!
+          return
+        end
 
-      if @room.users.empty?
-        @room.destroy
-      else
-        game_in_progress = @room.winner.nil? && @room.users.any? { |u| u["ready"] }
-        @room.update(users: new_users) unless game_in_progress
+        @room.update!(users: new_users)
         broadcast_state
       end
-    end
+  end
+
+  def unsubscribed
+    return unless @room
+    # fallback only; no roster mutation here
+    broadcast_state
   end
 
   # ============================================================================

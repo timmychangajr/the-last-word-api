@@ -1,8 +1,7 @@
 # Manages room state updates: scores, progress, buffer, win conditions
 class GameStateManager
-  BUFFER_SIZE = 15
-
   def self.update_room_state(room, username, points, progress, is_correct, word, msg)
+    max_buffer = 25 * (room.users&.size || 1)
     target_size = room.words.size
 
     # Update user score and progress
@@ -25,20 +24,16 @@ class GameStateManager
         "progress_at_time" => progress - 1,
         "health" => word.length * 2
       }
-      room.buffer_array = room.buffer_array.last(BUFFER_SIZE)
+      room.buffer_array = room.buffer_array.last(max_buffer)
     end
 
-    # Check if game is won
     if any_players_finished?(room, target_size) && room.winner.blank?
       winning_name = highest_scorer(room)
       room.winner = winning_name
 
       winners = winning_name.split(",")
 
-      # Map to a fresh array and re-assign it explicitly
       room.users = room.users.map do |u|
-        # We use .dup or .merge to ensure we aren't just modifying
-        # the same memory object Rails is already tracking
         if winners.include?(u["username"])
           u.merge("wins" => (u["wins"] || 0) + 1)
         else
